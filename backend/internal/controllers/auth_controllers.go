@@ -69,18 +69,18 @@ func (h *AuthControllers) LoginUser(c *gin.Context) {
 }
 
 func (h *AuthControllers) RefreshToken(c *gin.Context) {
-	var req dto.RefreshTokenRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	id := c.PostForm("id")
+	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Data tidak ditemukan",
+			"error": "ID dibutuhkan",
 		})
 		return
 	}
 
-	accesToken, err := h.s.RefreshToken(req)
+	accesToken, err := h.s.RefreshToken(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Refresh token gagal",
+			"error": err.Error(),
 		})
 		return
 	}
@@ -95,16 +95,15 @@ func (h *AuthControllers) RefreshToken(c *gin.Context) {
 }
 
 func (h *AuthControllers) LogoutUser(c *gin.Context) {
-	var req dto.RefreshTokenRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
+	id := c.PostForm("id")
+	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid request",
+			"error": "ID dibutuhkan",
 		})
 		return
 	}
 
-	err := h.s.LogoutUser(req)
+	err := h.s.LogoutUser(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "logout gagal",

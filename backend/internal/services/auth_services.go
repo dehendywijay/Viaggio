@@ -6,7 +6,7 @@ import (
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
-
+	"strconv"
 	"triptix/pkg/jwt"
 	"triptix/pkg/utils"
 
@@ -14,14 +14,13 @@ import (
 )
 
 type AuthService struct {
-	r *repository.AuthRepository
+	r     *repository.AuthRepository
 	Redis *redis.Client
-
 }
 
 func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthService {
 	return &AuthService{
-		r: r,
+		r:     r,
 		Redis: redis,
 	}
 }
@@ -64,10 +63,17 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 		return dto.LoginRespone{}, err
 	}
 
-	err = s.Redis.Set(
+	userIDStr := strconv.Itoa(int(result.ID))
+
+	// s.Redis.Del(
+	// 	context.Background(),
+	// 	userIDStr,
+	// ).Err()
+
+	s.Redis.Set(
 		context.Background(),
-		refreshTokenHash,
-		result.ID,
+		userIDStr,
+		refreshTokenValue,
 		7*24*time.Hour,
 	).Err()
 
@@ -81,27 +87,32 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 	return data, nil
 }
 
-func (s *AuthService) RefreshToken(req dto.RefreshTokenRequest) (string, error) {
-	refreshTokenHash := utils.HashToken(req.RefreshToken)
-	valid, err := s.r.GetRefreshToken(refreshTokenHash)
+//SERVICE BELUM SELESAI, MASIH PERLU DI COCOKAN DENGAN REFRESH YANG DI SIMPAN LOCAL STORAGE
+func (s *AuthService) RefreshToken(id string) (string, error) {
+	s.Redis.Get(
+		context.Background(),
+		id,
+	).Result()
+
+	ID, err := strconv.Atoi(id)
 	if err != nil {
 		return " ", err
 	}
 
-	accesToken, err := jwt.GenerateAccessToken(valid.UserID)
+	accesToken, err := jwt.GenerateAccessToken(uint(ID))
 	if err != nil {
 		return " ", err
 	}
+	
 
 	return accesToken, nil
 }
 
-func (s *AuthService) LogoutUser(req dto.RefreshTokenRequest) error {
-	hashedToken := utils.HashToken(req.RefreshToken)
-	err := s.r.RevokeRefreshToken(hashedToken)
-	if err != nil {
-		return err
-	}
+func (s *AuthService) LogoutUser(id string) error {
+	s.Redis.Del(
+		context.Background(),
+		id,
+	).Err()
 
 	return nil
 }
