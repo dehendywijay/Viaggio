@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
+ 
 func CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wisata, error) {
 	result, err := repository.CreateWisata(data)
 	if err != nil {

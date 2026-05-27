@@ -8,15 +8,15 @@ import (
 )
 
 type ReviewService struct {
-	r repository.ReviewRepositoryInterface
+	r *repository.ReviewRepository
 }
 
-func NewReviewService(r repository.ReviewRepositoryInterface) *ReviewService {
+func NewReviewService(r *repository.ReviewRepository) *ReviewService {
 	return &ReviewService{
 		r: r,
 	}
 }
-
+ 
 func (s *ReviewService) CreateReview(
 	req dto.CreateReviewRequest,
 ) (dto.ReviewResponse, error) {
