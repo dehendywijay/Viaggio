@@ -12,9 +12,9 @@ import { Search, Bell, User } from "lucide-react-native";
 import DestinasiCard from "../components/DestinasiCard";
 import KategoriList from "../components/KategoriList";
 import RecentTripCard from "../components/RecentTripCard";
-import {  categories, recentTrips } from "../data/destinations";
+import { categories, recentTrips } from "../data/destinations";
 import { useRouter } from "expo-router";
-import { useWisata } from "@/hook/wisata/useWisata";
+import { useWisata } from "@/hooks/wisata/useWisata";
 
 export default function HomeScreen() {
   const router = useRouter();
