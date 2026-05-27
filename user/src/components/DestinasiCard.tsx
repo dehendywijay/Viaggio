@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Star, MapPin, Heart } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { Destination } from "../data/destinations";
-import { Wisata, WisataResponse } from "@/type/wisata";
+import { Wisata } from "@/type/wisata";
 
 interface DestinasiCardProps {
   destination: Wisata;
@@ -18,7 +17,7 @@ export default function DestinasiCard({ destination, horizontal }: DestinasiCard
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => router.push(`/details/${destination.id}`)}
+      onPress={() => router.push(`/details/${destination.ID}`)}
       className={`rounded-3xl overflow-hidden mb-4 ${horizontal ? "w-72 mr-4" : "w-full"}`}
     >
       <View className="relative">
