@@ -9,22 +9,23 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Mail, Lock, ArrowRight, Plane, Compass } from "lucide-react-native";
+import { Mail, Lock, ArrowRight, Plane } from "lucide-react-native";
+import { useLogin } from "@/hooks/auth/useLogin";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { handleLogin, loading, error } = useLogin();
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: "#FF6B5B" }}>
       <StatusBar barStyle="light-content" />
 
-      {/* Branded hero section */}
       <View className="items-center pt-10 pb-10 px-8">
-        {/* Logo icon */}
         <View
           className="w-20 h-20 rounded-3xl items-center justify-center mb-5"
           style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
@@ -32,12 +33,11 @@ export default function LoginScreen() {
           <Plane size={38} color="white" strokeWidth={1.8} />
         </View>
 
-        <Text className="text-4xl font-bold text-white tracking-tight">Viaggio</Text>
+        <Text className="text-4xl font-bold text-white tracking-tight">TripTix</Text>
         <Text className="text-white/75 text-sm mt-2 text-center leading-5">
           Explore Indonesia, One Ticket at a Time
         </Text>
 
-        {/* Decorative pill indicators */}
         <View className="flex-row items-center gap-2 mt-5">
           <View className="w-6 h-1.5 rounded-full bg-white" />
           <View className="w-1.5 h-1.5 rounded-full bg-white/40" />
@@ -45,7 +45,6 @@ export default function LoginScreen() {
         </View>
       </View>
 
-      {/* White form card */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -61,7 +60,12 @@ export default function LoginScreen() {
             Masuk dan lanjutkan petualanganmu 🌏
           </Text>
 
-          {/* Email */}
+          {error && (
+            <View className="mb-4 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
+              <Text className="text-red-500 text-sm">{error}</Text>
+            </View>
+          )}
+
           <View className="mb-4">
             <Text className="text-slate-600 font-semibold text-sm mb-2">Email</Text>
             <View className="bg-slate-50 px-4 py-4 rounded-2xl flex-row items-center border border-slate-100">
@@ -78,7 +82,6 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          {/* Password */}
           <View className="mb-2">
             <Text className="text-slate-600 font-semibold text-sm mb-2">Password</Text>
             <View className="bg-slate-50 px-4 py-4 rounded-2xl flex-row items-center border border-slate-100">
@@ -98,7 +101,6 @@ export default function LoginScreen() {
             <Text className="text-primary font-semibold text-sm">Lupa Password?</Text>
           </TouchableOpacity>
 
-          {/* CTA */}
           <TouchableOpacity
             className="bg-primary w-full py-4 rounded-2xl flex-row items-center justify-center"
             style={{
@@ -107,21 +109,27 @@ export default function LoginScreen() {
               shadowRadius: 14,
               shadowOffset: { width: 0, height: 7 },
               elevation: 10,
+              opacity: loading ? 0.7 : 1,
             }}
-            onPress={() => router.push("/")}
+            onPress={() => handleLogin(email, password)}
+            disabled={loading}
           >
-            <Text className="text-white font-bold text-lg mr-2">Masuk Sekarang</Text>
-            <ArrowRight size={20} color="white" />
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <>
+                <Text className="text-white font-bold text-lg mr-2">Masuk Sekarang</Text>
+                <ArrowRight size={20} color="white" />
+              </>
+            )}
           </TouchableOpacity>
 
-          {/* Divider */}
           <View className="flex-row items-center my-7">
             <View className="flex-1 h-px bg-slate-100" />
             <Text className="text-slate-300 mx-4 text-sm">atau</Text>
             <View className="flex-1 h-px bg-slate-100" />
           </View>
 
-          {/* Register link */}
           <View className="flex-row justify-center items-center">
             <Text className="text-slate-400">Belum punya akun? </Text>
             <TouchableOpacity onPress={() => router.push("/auth/register")}>
