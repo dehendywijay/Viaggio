@@ -18,9 +18,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	redisClient := config.ConnectRedis()
 	db.AutoMigrate(&models.Wisata{}, &models.User{}, &models.Foto{}, &models.Review{},)
-	app := config.BootstrapApp(db)
+	app := config.BootstrapApp(db, redisClient)
 	routes.SetupRoutes(r, app)
+	
 
 	port := os.Getenv("PORT")
 	if port == "" {
