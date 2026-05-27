@@ -9,15 +9,18 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Mail, Lock, User, ArrowRight, ArrowLeft, MapPin } from "lucide-react-native";
+import { useRegister } from "@/hooks/auth/useRegister";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { handleRegister, loading, error } = useRegister();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FF6B5B" }}>
@@ -32,7 +35,6 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >
-          {/* Hero section */}
           <View style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 }}>
             <TouchableOpacity
               onPress={() => router.back()}
@@ -52,7 +54,7 @@ export default function RegisterScreen() {
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
               <MapPin size={16} color="white" />
               <Text style={{ color: "white", fontWeight: "700", fontSize: 15, marginLeft: 6 }}>
-                Viaggio
+                TripTix
               </Text>
             </View>
             <Text style={{ color: "white", fontWeight: "800", fontSize: 26, lineHeight: 34 }}>
@@ -63,7 +65,6 @@ export default function RegisterScreen() {
             </Text>
           </View>
 
-          {/* White form card */}
           <View
             style={{
               backgroundColor: "white",
@@ -81,6 +82,22 @@ export default function RegisterScreen() {
             <Text style={{ color: "#94a3b8", fontSize: 13, marginTop: 4, marginBottom: 24 }}>
               Daftar gratis dan langsung eksplor!
             </Text>
+
+            {error && (
+              <View
+                style={{
+                  marginBottom: 16,
+                  backgroundColor: "#fef2f2",
+                  borderWidth: 1,
+                  borderColor: "#fecaca",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                }}
+              >
+                <Text style={{ color: "#ef4444", fontSize: 13 }}>{error}</Text>
+              </View>
+            )}
 
             {/* Nama */}
             <View style={{ marginBottom: 14 }}>
@@ -169,7 +186,6 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* CTA */}
             <TouchableOpacity
               style={{
                 backgroundColor: "#FF6B5B",
@@ -183,16 +199,23 @@ export default function RegisterScreen() {
                 shadowRadius: 14,
                 shadowOffset: { width: 0, height: 7 },
                 elevation: 10,
+                opacity: loading ? 0.7 : 1,
               }}
-              onPress={() => router.push("/")}
+              onPress={() => handleRegister(name, email, password)}
+              disabled={loading}
             >
-              <Text style={{ color: "white", fontWeight: "700", fontSize: 16, marginRight: 8 }}>
-                Daftar Sekarang
-              </Text>
-              <ArrowRight size={20} color="white" />
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <>
+                  <Text style={{ color: "white", fontWeight: "700", fontSize: 16, marginRight: 8 }}>
+                    Daftar Sekarang
+                  </Text>
+                  <ArrowRight size={20} color="white" />
+                </>
+              )}
             </TouchableOpacity>
 
-            {/* Terms */}
             <Text
               style={{
                 color: "#94a3b8",
@@ -209,7 +232,6 @@ export default function RegisterScreen() {
               <Text style={{ color: "#FF6B5B", fontWeight: "600" }}>Kebijakan Privasi</Text> kami.
             </Text>
 
-            {/* Login link */}
             <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
               <Text style={{ color: "#94a3b8" }}>Sudah punya akun? </Text>
               <TouchableOpacity onPress={() => router.back()}>
