@@ -5,6 +5,7 @@ import (
 	"triptix/internal/repository"
 	"triptix/internal/services"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +15,7 @@ type App struct {
 	WisataController *controllers.WisataControllers
 }
 
-func BootstrapApp(db *gorm.DB) *App {
+func BootstrapApp(db *gorm.DB, redis *redis.Client) *App {
 
 	authRepo := repository.NewAuthRepository(db)
 	authService := services.NewAuthService(authRepo)
