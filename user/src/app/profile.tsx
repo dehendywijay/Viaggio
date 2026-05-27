@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
@@ -18,6 +19,9 @@ import {
   Star,
   Backpack,
 } from "lucide-react-native";
+import { useAuth } from "../context/AuthContext";
+import { useLogout } from "@/hooks/auth/useLogout";
+import { useProfile } from "@/hooks/user/useProfile";
 
 const MENU_ITEMS = [
   { icon: User, label: "Edit Profil", sub: "Ubah foto & informasi", color: "#FF6B5B", route: "/auth/login" },
@@ -28,6 +32,9 @@ const MENU_ITEMS = [
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { handleLogout, loading: loggingOut } = useLogout();
+  const { profile, loading: profileLoading } = useProfile(user?.email);
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -66,8 +73,8 @@ export default function ProfileScreen() {
             <User size={40} color="white" />
           </View>
 
-          <Text className="text-white text-xl font-bold mt-4">Pengguna Viaggio</Text>
-          <Text className="text-white/70 text-sm mt-1">user@example.com</Text>
+          <Text className="text-white text-xl font-bold mt-4">{user?.nama ?? "Pengguna TripTix"}</Text>
+          <Text className="text-white/70 text-sm mt-1">{user?.email ?? ""}</Text>
 
           <TouchableOpacity
             className="mt-4 px-6 py-2 rounded-full border border-white/40"
@@ -88,7 +95,7 @@ export default function ProfileScreen() {
               <View className="w-10 h-10 rounded-2xl bg-primary/10 items-center justify-center mb-2">
                 <Backpack size={18} color="#FF6B5B" />
               </View>
-              <Text className="text-xl font-bold text-slate-900">12</Text>
+              <Text className="text-xl font-bold text-slate-900">-</Text>
               <Text className="text-slate-400 text-xs text-center mt-0.5">Trip{"\n"}Selesai</Text>
             </View>
 
@@ -98,7 +105,13 @@ export default function ProfileScreen() {
               <View className="w-10 h-10 rounded-2xl bg-amber-50 items-center justify-center mb-2">
                 <Star size={18} color="#f59e0b" />
               </View>
-              <Text className="text-xl font-bold text-slate-900">5</Text>
+              {profileLoading ? (
+                <ActivityIndicator size="small" color="#f59e0b" />
+              ) : (
+                <Text className="text-xl font-bold text-slate-900">
+                  {profile?.Reviews?.length ?? 0}
+                </Text>
+              )}
               <Text className="text-slate-400 text-xs text-center mt-0.5">Ulasan{"\n"}Diberikan</Text>
             </View>
 
@@ -108,7 +121,7 @@ export default function ProfileScreen() {
               <View className="w-10 h-10 rounded-2xl bg-rose-50 items-center justify-center mb-2">
                 <Heart size={18} color="#f43f5e" />
               </View>
-              <Text className="text-xl font-bold text-slate-900">3</Text>
+              <Text className="text-xl font-bold text-slate-900">-</Text>
               <Text className="text-slate-400 text-xs text-center mt-0.5">Favorit{"\n"}Tersimpan</Text>
             </View>
           </View>
@@ -152,10 +165,17 @@ export default function ProfileScreen() {
         <View className="px-6">
           <TouchableOpacity
             className="bg-red-50 py-4 rounded-2xl flex-row items-center justify-center border border-red-100"
-            onPress={() => router.push("/auth/login")}
+            onPress={handleLogout}
+            disabled={loggingOut}
           >
-            <LogOut size={18} color="#ef4444" />
-            <Text className="text-red-500 font-bold ml-2">Keluar dari Akun</Text>
+            {loggingOut ? (
+              <ActivityIndicator color="#ef4444" size="small" />
+            ) : (
+              <>
+                <LogOut size={18} color="#ef4444" />
+                <Text className="text-red-500 font-bold ml-2">Keluar dari Akun</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
