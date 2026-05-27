@@ -1,17 +1,26 @@
-package controller
+package controllers
 
 import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
 	"triptix/internal/models"
-	"triptix/internal/repository"
 	"triptix/internal/services"
- 
+
 	"github.com/gin-gonic/gin"
 )
 
-func CreateWisata(c *gin.Context) {
+type WisataControllers struct {
+	s *services.WisataService
+}
+
+func NewWisataControllers(s *services.WisataService) *WisataControllers {
+	return &WisataControllers{
+		s: s,
+	}
+}
+
+func (h *WisataControllers) CreateWisata(c *gin.Context) {
 	nama := c.PostForm("nama")
 	alamat := c.PostForm("alamat")
 	deskripsi := c.PostForm("deskripsi")
@@ -50,7 +59,7 @@ func CreateWisata(c *gin.Context) {
 		Kategori:  kategori,
 	}
 
-	result, err := services.CreateWisata(wisata, files)
+	result, err := h.s.CreateWisata(wisata, files)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -63,7 +72,7 @@ func CreateWisata(c *gin.Context) {
 
 }
 
-func EditWisata(c *gin.Context) {
+func (h *WisataControllers) EditWisata(c *gin.Context) {
 
 	id := c.Param("id")
 
@@ -111,7 +120,7 @@ func EditWisata(c *gin.Context) {
 
 	fileEdit, _ := c.FormFile("fotoEdit")
 
-	err = services.EditWisata(
+	err = h.s.EditWisata(
 		uint(idd),
 		c.PostForm("id_foto"),
 		wisata,
@@ -133,8 +142,8 @@ func EditWisata(c *gin.Context) {
 	})
 }
 
-func GetAllWisata(c *gin.Context) {
-	wisata, err := repository.GetAllWisata()
+func (h *WisataControllers) GetAllWisata(c *gin.Context) {
+	wisata, err := h.s.GetAllWisata()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mengambil data wisata",
@@ -146,9 +155,9 @@ func GetAllWisata(c *gin.Context) {
 	})
 }
 
-func GetWisataByID(c *gin.Context) {
+func (h *WisataControllers) GetWisataByID(c *gin.Context) {
 	id := c.Param("id")
-	wisata, err := repository.GetWisataByID(id)
+	wisata, err := h.s.GetWisataByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Data wisata tidak ditemukan",

@@ -7,14 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type ReviewRepositoryInterface interface { 
-	CreateReview(data models.Review) error
-	GetWisataByIDWisata(id uint) (models.Wisata, error)
-	GetReviewsByWisataID(wisataID uint) ([]models.Review, error)
-}
-
 type ReviewRepository struct {
 	GormDB *gorm.DB
+}
+
+func NewReviewRepository(db *gorm.DB) *ReviewRepository {
+	return &ReviewRepository{
+		GormDB: db,
+	}
 }
 
 func (r *ReviewRepository) CreateReview(

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"mime/multipart"
+	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
 	"triptix/pkg/storage"
@@ -11,9 +12,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+ 
+type WisataService struct {
+	r *repository.WisataRepository
+}
 
-func CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wisata, error) {
-	result, err := repository.CreateWisata(data)
+func NewWisataService(r *repository.WisataRepository) *WisataService {
+	return &WisataService{
+		r: r,
+	}
+}
+
+	
+func (s *WisataService) CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wisata, error) {
+	result, err := s.r.CreateWisata(data)
 	if err != nil {
 		return models.Wisata{},
 			fmt.Errorf("membuat wisata: %w", err)
@@ -35,7 +47,7 @@ func CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wis
 			WisataID: result.ID,
 			URL:      publicURL,
 		}
-		if err := repository.CreateWisataFoto(foto); err != nil {
+		if err := s.r.CreateWisataFoto(foto); err != nil {
 			return models.Wisata{},
 				fmt.Errorf("create wisata foto: %w", err)
 		}
@@ -46,7 +58,7 @@ func CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wis
 
 }
 
-func EditWisata(
+func (s *WisataService) EditWisata(
 	wisataID uint,
 	idFoto string,
 	wisata models.Wisata,
@@ -55,7 +67,7 @@ func EditWisata(
 	c *gin.Context,
 ) error {
 
-	_, err := repository.EditWisata(
+	_, err := s.r.EditWisata(
 		wisataID,
 		wisata,
 	)
@@ -68,7 +80,7 @@ func EditWisata(
 	}
 	if fileEdit != nil {
 
-		oldObjectPath, err := repository.GetFotoWisata(
+		oldObjectPath, err := s.r.GetFotoWisata(
 			wisataID,
 			idFoto,
 		)
@@ -119,7 +131,7 @@ func EditWisata(
 			URL: publicURL,
 		}
 
-		err = repository.UpdateWisataFoto(
+		err = s.r.UpdateWisataFoto(
 			foto,
 			idFoto,
 		)
@@ -165,7 +177,7 @@ func EditWisata(
 			URL:      publicURL,
 		}
 
-		err = repository.CreateWisataFoto(foto)
+		err = s.r.CreateWisataFoto(foto)
 		if err != nil {
 			return fmt.Errorf(
 				"create wisata foto: %w",
@@ -177,3 +189,10 @@ func EditWisata(
 	return nil
 }
 
+func (s *WisataService) GetAllWisata() ([]dto.AllWisataResponse, error) {
+	return s.r.GetAllWisata()
+}
+
+func (s *WisataService) GetWisataByID(id string) (models.Wisata, error) {
+	return s.r.GetWisataByID(id)
+}

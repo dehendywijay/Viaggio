@@ -1,21 +1,28 @@
 package services
 
 import (
+	"context"
+	"time"
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
 
 	"triptix/pkg/jwt"
 	"triptix/pkg/utils"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthService struct {
-	r repository.AuthRepositoryInterface
+	r *repository.AuthRepository
+	Redis *redis.Client
+
 }
 
-func NewAuthService(r repository.AuthRepositoryInterface) *AuthService {
+func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthService {
 	return &AuthService{
 		r: r,
+		Redis: redis,
 	}
 }
 
@@ -56,6 +63,13 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 	if err != nil {
 		return dto.LoginRespone{}, err
 	}
+
+	err = s.Redis.Set(
+		context.Background(),
+		refreshTokenHash,
+		result.ID,
+		7*24*time.Hour,
+	).Err()
 
 	data := dto.LoginRespone{
 		ID:           result.ID,

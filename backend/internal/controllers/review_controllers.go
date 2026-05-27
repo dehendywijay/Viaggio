@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"net/http"
@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 ) 
 
+
 type ReviewControllers struct {
 	s *services.ReviewService
 }
@@ -18,7 +19,7 @@ func NewReviewControllers(s *services.ReviewService) *ReviewControllers {
 	return &ReviewControllers{
 		s: s,
 	}
-}
+} 
 
 func (h *ReviewControllers) CreateReview(c *gin.Context) {
 

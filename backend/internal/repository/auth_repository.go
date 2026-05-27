@@ -9,35 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthRepositoryInterface interface {
-	RegisterUser(
-		user *models.User,
-	) error
-
-	LoginUser(
-		email string,
-		password string,
-	) (models.User, error)
-	GetReviewsByUserID(userID uint,) ([]models.Review, error)
-	GetUserByEmail(email string,) (*models.User, error)
-	CreateRefreshToken(
-		id uint,
-		hash string,
-	) (models.RefreshToken, error)
-
-	GetRefreshToken(
-		hash string,
-	) (models.RefreshToken, error)
-
-	RevokeRefreshToken(
-		hash string,
-	) error
-}
-
 type AuthRepository struct {
 	GormDB *gorm.DB
 }
 
+func NewAuthRepository(db *gorm.DB) *AuthRepository {
+	return &AuthRepository{
+		GormDB: db,
+	}
+}
 
 func (r *AuthRepository) RegisterUser(data *models.User) error {
 	return r.GormDB.Create(&data).Error
