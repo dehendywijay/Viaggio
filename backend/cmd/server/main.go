@@ -2,10 +2,10 @@ package main
 
 import (
 	"os"
-	"triptix/config"
+	"triptix/internal/config"
 	"triptix/internal/middleware"
 	"triptix/internal/models"
-	"triptix/routes"
+	"triptix/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )
