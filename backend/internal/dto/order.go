@@ -10,6 +10,17 @@ type CreateOrderRequest struct {
 	Tanggal  time.Time `json:"tanggal" binding:"required"`
 
 	Status string `json:"status" default:"pending"`
-} 
+}
 
+type GetOrderResponse struct {
+	WisataID uint `json:"wisata_id"`
+	UserID   uint `json:"user_id"`
 
+	Qty        int `json:"qty"`
+	Harga      int `json:"harga"`
+	TotalHarga int `json:"total_harga"`
+
+	Tanggal time.Time `json:"tanggal"`
+
+	Status string `json:"status"`
+}
