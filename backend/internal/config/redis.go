@@ -9,7 +9,7 @@ import (
 
 var Ctx = context.Background()
 
-func ConnectRedis() *redis.Client {
+func ConnectRedis() (*redis.Client, error) {
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -20,10 +20,10 @@ func ConnectRedis() *redis.Client {
 	_, err := rdb.Ping(Ctx).Result()
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	fmt.Println("Redis Connected")
 
-	return rdb
+	return rdb, nil
 }
