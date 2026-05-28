@@ -15,6 +15,7 @@ type Wisata struct {
 	Reviews []Review `gorm:"foreignKey:WisataID"`
 	Fotos   []Foto   `gorm:"foreignKey:WisataID"`
 	Bookmarks []Bookmark `gorm:"foreignKey:WisataID"`
+	OrderItems []OrderItem `gorm:"foreignKey:WisataID"`
 }
 
 type Foto struct {
