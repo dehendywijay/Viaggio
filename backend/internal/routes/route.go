@@ -34,5 +34,6 @@ func SetupRoutes(r *gin.Engine, app *config.App) {
 	order := r.Group("/api/orders")
 	{
 		order.POST("", app.OrderController.CreateOrder)
+		order.GET("/user/:id", app.OrderController.GetOrders)
 	}
 }
