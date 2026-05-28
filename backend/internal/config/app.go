@@ -18,7 +18,7 @@ type App struct {
 func BootstrapApp(db *gorm.DB, redis *redis.Client) *App {
 
 	authRepo := repository.NewAuthRepository(db)
-	authService := services.NewAuthService(authRepo)
+	authService := services.NewAuthService(authRepo,redis)
 	authController := controllers.NewAuthControllers(authService)
 
 
