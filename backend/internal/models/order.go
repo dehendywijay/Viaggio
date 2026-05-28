@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Order struct {
 	gorm.Model
@@ -23,6 +27,7 @@ type OrderItem struct {
 
 	Qty   int `json:"qty" gorm:"not null"`
 	Harga int `json:"harga" gorm:"not null"`
+	Tanggal time.Time `json:"tanggal" gorm:"not null"`
 
 	Order  Order  `json:"order,omitempty" gorm:"foreignKey:OrderID"`
 	Wisata Wisata `json:"wisata,omitempty" gorm:"foreignKey:WisataID"`

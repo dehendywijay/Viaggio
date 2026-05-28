@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/services"
 
@@ -21,13 +22,14 @@ func NewWisataControllers(s *services.WisataService) *WisataControllers {
 }
 
 func (h *WisataControllers) CreateWisata(c *gin.Context) {
-	nama := c.PostForm("nama")
-	alamat := c.PostForm("alamat")
-	deskripsi := c.PostForm("deskripsi")
-	durasi := c.PostForm("durasi")
-	jenis := c.PostForm("jenis")
-	harga := c.PostForm("harga")
-	kategori := c.PostForm("kategori")
+	var req dto.CreateWisataRequest
+
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "request tidak valid",
+		})
+		return 
+	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -36,27 +38,27 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 	}
 
 	files := form.File["fotos"]
-	durasii, err := strconv.Atoi(durasi)
+	durasii, err := strconv.Atoi(strconv.Itoa(req.Durasi))
 	if err != nil {
 		return
 	}
-	hargaa, err := strconv.Atoi(harga)
+	hargaa, err := strconv.Atoi(strconv.Itoa(req.Harga))
 	if err != nil {
 		return
 	}
 
-	if nama == "" || alamat == "" || deskripsi == "" || durasi == "" || jenis == "" || harga == "" || kategori == "" {
+	if req.Nama == "" || req.Alamat == "" || req.Deskripsi == "" || req.Durasi == 0 || req.Jenis == "" || req.Harga == 0 || req.Kategori == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Semua field harus diisi"})
 		return
 	}
 	wisata := models.Wisata{
-		Nama:      nama,
-		Alamat:    alamat,
-		Deskripsi: deskripsi,
+		Nama:      req.Nama,
+		Alamat:    req.Alamat,
+		Deskripsi: req.Deskripsi,
 		Durasi:    durasii,
-		Jenis:     jenis,
+		Jenis:     req.Jenis,
 		Harga:     hargaa,
-		Kategori:  kategori,
+		Kategori:  req.Kategori,
 	}
 
 	result, err := h.s.CreateWisata(wisata, files)

@@ -30,4 +30,10 @@ func SetupRoutes(r *gin.Engine, app *config.App) {
 		wisata.GET("/:id", app.WisataController.GetWisataByID)
 		wisata.PUT("/:id", app.WisataController.EditWisata)
 	}
+
+	order := r.Group("/api/orders")
+	{
+		order.POST("", app.OrderController.CreateOrder)
+		order.GET("/user/:id", app.OrderController.GetOrders)
+	}
 }
