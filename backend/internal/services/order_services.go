@@ -35,3 +35,13 @@ func (s *OrderService) CreateOrder(orderRequest dto.CreateOrderRequest)  error {
 	}
 	return nil
 }
+
+func (s *OrderService) GetOrders(userID uint) ([]*dto.GetOrderResponse, error) {
+	orderResponses, err := s.r.GetOrders(userID)
+	if err != nil {
+		return nil, err
+	}
+	return orderResponses, nil
+}
+
+
