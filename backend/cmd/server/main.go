@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&models.Wisata{}, &models.User{}, &models.Foto{}, &models.Review{},)
+	db.AutoMigrate(&models.Wisata{}, &models.User{}, &models.Foto{}, &models.Review{}, &models.Order{}, &models.OrderItem{})
 	app := config.BootstrapApp(db, redisClient)
 	routes.SetupRoutes(r, app)
 	
