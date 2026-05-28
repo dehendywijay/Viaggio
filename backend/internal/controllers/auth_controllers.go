@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"triptix/internal/dto"
-	"triptix/internal/models"
 	"triptix/internal/services"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +19,7 @@ func NewAuthControllers(s *services.AuthService) *AuthControllers {
 }
 
 func (h *AuthControllers) RegisterUser(c *gin.Context) {
-	var user models.User
+	var user dto.RegisterRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(400, gin.H{
 			"success": false,

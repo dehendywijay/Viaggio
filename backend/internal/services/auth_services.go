@@ -2,13 +2,16 @@ package services
 
 import (
 	"context"
+	"strconv"
 	"time"
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
-	"strconv"
+	"triptix/internal/validator"
 	"triptix/pkg/jwt"
 	"triptix/pkg/utils"
+
+	"errors"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -25,16 +28,26 @@ func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthServ
 	}
 }
 
-func (s *AuthService) RegisterUser(user *models.User) error {
+func (s *AuthService) RegisterUser(user *dto.RegisterRequest) error {
+	err := validator.ValidateRegister(user)
+	if err != nil {
+		return err
+	}
+
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		return err
 	}
-	user.Password = hashedPassword
 
-	err = s.r.RegisterUser(user)
+	userValidate := models.User{
+		Nama:     user.Nama,
+		Email:    user.Email,
+		Password: hashedPassword,
+	}
+
+	err = s.r.RegisterUser(&userValidate)
 	if err != nil {
-		return err
+		return errors.New("Email sudah terdaftar")
 	}
 	return err
 
@@ -87,7 +100,7 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 	return data, nil
 }
 
-//SERVICE BELUM SELESAI, MASIH PERLU DI COCOKAN DENGAN REFRESH YANG DI SIMPAN LOCAL STORAGE
+// SERVICE BELUM SELESAI, MASIH PERLU DI COCOKAN DENGAN REFRESH YANG DI SIMPAN LOCAL STORAGE
 func (s *AuthService) RefreshToken(id string) (string, error) {
 	s.Redis.Get(
 		context.Background(),
@@ -103,7 +116,6 @@ func (s *AuthService) RefreshToken(id string) (string, error) {
 	if err != nil {
 		return " ", err
 	}
-	
 
 	return accesToken, nil
 }

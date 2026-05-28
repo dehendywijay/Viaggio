@@ -1,5 +1,10 @@
 package dto
 
+type  RegisterRequest struct {
+	Nama     string `json:"nama"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 type LoginRespone struct {
 	ID    uint  `json:"id"`
 	Email string `json:"email"`
