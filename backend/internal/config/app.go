@@ -13,6 +13,7 @@ type App struct {
 	AuthController   *controllers.AuthControllers
 	ReviewController *controllers.ReviewControllers
 	WisataController *controllers.WisataControllers
+	OrderController *controllers.OrderControllers
 }
 
 func BootstrapApp(db *gorm.DB, redis *redis.Client) *App {
@@ -30,9 +31,14 @@ func BootstrapApp(db *gorm.DB, redis *redis.Client) *App {
 	wisataService := services.NewWisataService(wisataRepo)
 	wisataController := controllers.NewWisataControllers(wisataService)
 
+	orderRepo := repository.NewOrderRepository(db)
+	orderService := services.NewOrderService(orderRepo)
+	orderController := controllers.NewOrderControllers(orderService)
+
 	return &App{
 		AuthController:   authController,
 		ReviewController: reviewController,
 		WisataController: wisataController,
+		OrderController:  orderController,
 	}
 }
