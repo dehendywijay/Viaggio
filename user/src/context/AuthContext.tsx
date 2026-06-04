@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import axiosInstance from "@/lib/axios";
-import { api_user_login, api_user_logout, api_user_register } from "@/constans/strings";
+import { api_user_login, api_user_logout, api_user_register, api_user } from "@/constans/strings";
 import { LoginResponse, User } from "@/type/auth";
 
 type AuthContextType = {
@@ -35,9 +36,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-    const { accessToken, refreshToken, user: userData } = data.data;
-    await AsyncStorage.setItem("accessToken", accessToken);
-    await AsyncStorage.setItem("refreshToken", refreshToken);
+    const { id, email: userEmail, access_token, refresh_token } = data.data;
+
+    // Ambil nama dari endpoint profile (public, tidak butuh token)
+    const profileRes = await axios.get(`${api_user}/${userEmail}`);
+    const nama: string = profileRes.data?.data?.user?.nama ?? "";
+
+    const userData: User = { id, email: userEmail, nama };
+
+    await AsyncStorage.setItem("accessToken", access_token);
+    await AsyncStorage.setItem("refreshToken", refresh_token);
     await AsyncStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
