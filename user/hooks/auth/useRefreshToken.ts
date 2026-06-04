@@ -18,7 +18,7 @@ export const useRefreshToken = () => {
       const { data } = await axios.post<RefreshResponse>(api_user_refresh, {
         refreshToken,
       });
-      const newToken = data.data.accessToken;
+      const newToken = data.data.access_token;
       await AsyncStorage.setItem("accessToken", newToken);
       return newToken;
     } catch (e: unknown) {
