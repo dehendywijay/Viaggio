@@ -1,8 +1,19 @@
-import { User } from "./auth";
-import { Review } from "./review";
+export type ReviewByUser = {
+  id: number;
+  rating: number;
+  comment: string;
+  wisata: {
+    id: number;
+    nama: string;
+  };
+};
 
-export type UserProfile = User & {
-  Reviews: Review[];
+export type UserProfile = {
+  user: {
+    id: number;
+    nama: string;
+  };
+  reviews: ReviewByUser[];
 };
 
 export type ProfileResponse = {
