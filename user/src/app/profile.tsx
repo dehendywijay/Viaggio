@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useLogout } from "@/hooks/auth/useLogout";
 import { useProfile } from "@/hooks/user/useProfile";
+import { useOrders } from "@/hooks/order/useOrders";
 
 const MENU_ITEMS = [
   { icon: User, label: "Edit Profil", sub: "Ubah foto & informasi", color: "#FF6B5B", route: "/auth/login" },
@@ -35,6 +36,7 @@ export default function ProfileScreen() {
   const { user } = useAuth();
   const { handleLogout, loading: loggingOut } = useLogout();
   const { profile, loading: profileLoading } = useProfile(user?.email);
+  const { orders } = useOrders(user?.id);
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -95,7 +97,9 @@ export default function ProfileScreen() {
               <View className="w-10 h-10 rounded-2xl bg-primary/10 items-center justify-center mb-2">
                 <Backpack size={18} color="#FF6B5B" />
               </View>
-              <Text className="text-xl font-bold text-slate-900">-</Text>
+              <Text className="text-xl font-bold text-slate-900">
+                {orders.length}
+              </Text>
               <Text className="text-slate-400 text-xs text-center mt-0.5">Trip{"\n"}Selesai</Text>
             </View>
 
@@ -109,7 +113,7 @@ export default function ProfileScreen() {
                 <ActivityIndicator size="small" color="#f59e0b" />
               ) : (
                 <Text className="text-xl font-bold text-slate-900">
-                  {profile?.Reviews?.length ?? 0}
+                  {profile?.reviews?.length ?? 0}
                 </Text>
               )}
               <Text className="text-slate-400 text-xs text-center mt-0.5">Ulasan{"\n"}Diberikan</Text>

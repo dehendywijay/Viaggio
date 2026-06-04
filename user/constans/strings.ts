@@ -11,3 +11,5 @@ export const api_user_refresh = `${api_user}/refresh`;
 
 export const api_reviews = `${api}/reviews`;
 export const api_reviews_by_wisata = `${api_reviews}/wisata/:id`;
+
+export const api_orders = `${api}/orders`;

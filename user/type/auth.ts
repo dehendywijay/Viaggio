@@ -1,18 +1,20 @@
 export type User = {
+  id: number;
   nama: string;
   email: string;
 };
 
 export type LoginResponse = {
   data: {
-    accessToken: string;
-    refreshToken: string;
-    user: User;
+    id: number;
+    email: string;
+    access_token: string;
+    refresh_token: string;
   };
 };
 
 export type RefreshResponse = {
   data: {
-    accessToken: string;
+    access_token: string;
   };
 };
