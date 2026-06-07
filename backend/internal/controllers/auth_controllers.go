@@ -4,17 +4,20 @@ import (
 	"net/http"
 	"triptix/internal/dto"
 	"triptix/internal/services"
+	"triptix/internal/validator"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthControllers struct {
 	s *services.AuthService
+	Validator validator.CustomValidator
 }
 
-func NewAuthControllers(s *services.AuthService) *AuthControllers {
+func NewAuthControllers(s *services.AuthService, validator validator.CustomValidator) *AuthControllers {
 	return &AuthControllers{
 		s: s,
+		Validator: validator,
 	}
 }
 
@@ -28,7 +31,16 @@ func (h *AuthControllers) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	err := h.s.RegisterUser(&user)
+	err := h.Validator.Validate(&user)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	err	= h.s.RegisterUser(&user)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"success": false,
@@ -49,6 +61,15 @@ func (h *AuthControllers) LoginUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Data tidak ditemukan",
+		})
+		return
+	}
+
+	err := h.Validator.Validate(&req)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"error":   err.Error(),
 		})
 		return
 	}

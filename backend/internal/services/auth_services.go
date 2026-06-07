@@ -7,7 +7,6 @@ import (
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
-	"triptix/internal/validator"
 	"triptix/pkg/jwt"
 	"triptix/pkg/utils"
 
@@ -19,6 +18,7 @@ import (
 type AuthService struct {
 	r     *repository.AuthRepository
 	Redis *redis.Client
+
 }
 
 func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthService {
@@ -29,10 +29,6 @@ func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthServ
 }
 
 func (s *AuthService) RegisterUser(user *dto.RegisterRequest) error {
-	err := validator.ValidateRegister(user)
-	if err != nil {
-		return err
-	}
 
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {

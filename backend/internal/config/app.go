@@ -4,6 +4,7 @@ import (
 	"triptix/internal/controllers"
 	"triptix/internal/repository"
 	"triptix/internal/services"
+	"triptix/internal/validator"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -17,10 +18,11 @@ type App struct {
 }
 
 func BootstrapApp(db *gorm.DB, redis *redis.Client) *App {
+	validator := validator.NewCustomValidator()
 
 	authRepo := repository.NewAuthRepository(db)
 	authService := services.NewAuthService(authRepo,redis)
-	authController := controllers.NewAuthControllers(authService)
+	authController := controllers.NewAuthControllers(authService, validator)
 
 
 	reviewRepo := repository.NewReviewRepository(db)

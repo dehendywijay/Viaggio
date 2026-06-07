@@ -1,37 +1,34 @@
 package validator
 
 import (
-	"errors"
-	"regexp"
+	"fmt"
 	"strings"
-	"triptix/internal/dto"
+
+	"github.com/go-playground/validator/v10"
 )
 
-func ValidateRegister(req *dto.RegisterRequest) error {
+type CustomValidator interface {
+	Validate(s interface{}) error
+}
 
-	namaRegex := regexp.MustCompile(`^[a-zA-Z\s]+$`)
+type customValidator struct {
+	validate *validator.Validate
+}
 
-	if !namaRegex.MatchString(req.Nama) {
-		return errors.New("nama tidak boleh mengandung angka atau simbol")
+func NewCustomValidator() CustomValidator {
+	return &customValidator{
+		validate: validator.New(),
 	}
+}
 
-	if !strings.HasSuffix(req.Email, "@gmail.com") {
-		return errors.New("email harus menggunakan @gmail.com")
+func (cv *customValidator) Validate(s interface{}) error {
+	err := cv.validate.Struct(s)
+	if err != nil {
+		var errorMsgs []string
+		for _, err := range err.(validator.ValidationErrors) {
+			errorMsgs = append(errorMsgs, fmt.Sprintf("Field '%s' tidak valid pada aturan: %s", err.Field(), err.Tag()))
+		}
+		return fmt.Errorf("%s", strings.Join(errorMsgs, ", "))
 	}
-
-	if len(req.Password) < 6 {
-		return errors.New("password harus lebih dari 6 karakter")
-	}
-
-	upperRegex := regexp.MustCompile(`[A-Z]`)
-	if !upperRegex.MatchString(req.Password) {
-		return errors.New("password harus memiliki minimal 1 huruf besar")
-	}
-
-	numberRegex := regexp.MustCompile(`[0-9]`)
-	if !numberRegex.MatchString(req.Password) {
-		return errors.New("password harus memiliki minimal 1 angka")
-	}
-
 	return nil
 }

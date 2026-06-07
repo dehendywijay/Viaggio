@@ -1,9 +1,9 @@
 package dto
 
 type  RegisterRequest struct {
-	Nama     string `json:"nama"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Nama     string `json:"nama" validate:"required,alpha"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 type LoginRespone struct {
 	ID    uint  `json:"id"`
@@ -13,8 +13,8 @@ type LoginRespone struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 
 type RefreshTokenRequest struct {
