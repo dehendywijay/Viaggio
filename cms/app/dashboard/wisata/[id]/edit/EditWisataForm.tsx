@@ -9,6 +9,11 @@ const JENIS = ['Dalam Kota', 'Luar Kota', 'Mancanegara'];
 const inputCls =
   'w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-300 transition';
 
+type Foto = {
+  id: number;
+  url: string;
+};
+
 type Wisata = {
   id: number;
   nama: string;
@@ -18,6 +23,7 @@ type Wisata = {
   jenis: string;
   harga: number;
   durasi: number;
+  fotos: Foto[];
 };
 
 export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; id: string }) {
@@ -219,6 +225,20 @@ export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; 
                     <img src={src} alt="" className="w-full h-full object-cover" />
                   </div>
                 ))}
+              </div>
+            )}
+
+            {wisata.fotos?.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Foto Tersimpan</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {wisata.fotos.map((foto) => (
+                    <div key={foto.id} className="aspect-square rounded-lg overflow-hidden bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={foto.url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
