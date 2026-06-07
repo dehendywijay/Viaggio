@@ -28,7 +28,7 @@ func (cv *customValidator) Validate(s interface{}) error {
 		for _, err := range err.(validator.ValidationErrors) {
 			errorMsgs = append(errorMsgs, fmt.Sprintf("Field '%s' tidak valid pada aturan: %s", err.Field(), err.Tag()))
 		}
-		return fmt.Errorf(strings.Join(errorMsgs, ", "))
+		return fmt.Errorf("%s", strings.Join(errorMsgs, ", "))
 	}
 	return nil
 }
