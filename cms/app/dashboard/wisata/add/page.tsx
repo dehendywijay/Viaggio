@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { api_wisata } from '@/constans/strings';
 
 const KATEGORI = ['Alam', 'Budaya', 'Kuliner', 'Belanja', 'Hiburan', 'Religi', 'Lainnya'];
 const JENIS = ['Dalam Kota', 'Luar Kota', 'Mancanegara'];
@@ -10,8 +12,38 @@ const inputCls =
   'w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-300 transition';
 
 export default function AddWisataPage() {
+  const router = useRouter();
   const [fileCount, setFileCount] = useState(0);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch(api_wisata, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Gagal menyimpan wisata');
+      }
+
+      router.push('/dashboard/wisata');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -38,7 +70,16 @@ export default function AddWisataPage() {
         </div>
       </div>
 
-      <form className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {error && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-5">
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
             <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
@@ -152,9 +193,10 @@ export default function AddWisataPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-3">
             <button
               type="submit"
-              className="w-full py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+              disabled={loading}
+              className="w-full py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Simpan Wisata
+              {loading ? 'Menyimpan...' : 'Simpan Wisata'}
             </button>
             <Link
               href="/dashboard/wisata"

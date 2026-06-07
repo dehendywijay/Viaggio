@@ -2,12 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { api_wisata } from '@/constans/strings';
 
 const KATEGORI = ['Alam', 'Budaya', 'Kuliner', 'Belanja', 'Hiburan', 'Religi', 'Lainnya'];
 const JENIS = ['Dalam Kota', 'Luar Kota', 'Mancanegara'];
 
 const inputCls =
   'w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-300 transition';
+
+type Foto = {
+  id: number;
+  url: string;
+};
 
 type Wisata = {
   id: number;
@@ -18,12 +25,16 @@ type Wisata = {
   jenis: string;
   harga: number;
   durasi: number;
+  fotos: Foto[];
 };
 
 export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; id: string }) {
+  const router = useRouter();
   const [previews, setPreviews] = useState<string[]>([]);
   const [fileCount, setFileCount] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -33,10 +44,31 @@ export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; 
     setPreviews(urls);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch(`${api_wisata}/${id}`, {
+        method: 'PUT',
+        body: formData,
+        credentials: 'include',
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || 'Gagal menyimpan perubahan');
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        router.push('/dashboard/wisata');
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan');
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!wisata) {
@@ -77,6 +109,15 @@ export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; 
           <p className="text-sm text-slate-500 mt-0.5">Perbarui data destinasi wisata</p>
         </div>
       </div>
+
+      {error && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          {error}
+        </div>
+      )}
 
       {saved && (
         <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700 font-medium">
@@ -221,6 +262,20 @@ export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; 
                 ))}
               </div>
             )}
+
+            {wisata.fotos?.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Foto Tersimpan</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {wisata.fotos.map((foto) => (
+                    <div key={foto.id} className="aspect-square rounded-lg overflow-hidden bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={foto.url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-3">
@@ -233,12 +288,13 @@ export default function EditWisataForm({ wisata, id }: { wisata: Wisata | null; 
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Simpan Perubahan
+              {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
             <Link
               href="/dashboard/wisata"
