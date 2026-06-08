@@ -24,14 +24,25 @@ func NewWisataService(r *repository.WisataRepository) *WisataService {
 }
 
 	
-func (s *WisataService) CreateWisata(data models.Wisata, files[] *multipart.FileHeader) (models.Wisata, error) {
-	result, err := s.r.CreateWisata(data)
+func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) (models.Wisata, error) {
+
+	wisata := models.Wisata{
+		Nama:     data.Nama,
+		Alamat:   data.Alamat,
+		Harga:    data.Harga,
+		Kategori: data.Kategori,
+		Jenis:    data.Jenis,
+		Deskripsi: data.Deskripsi,
+		Durasi:   data.Durasi,
+	}
+
+	result, err := s.r.CreateWisata(wisata)
 	if err != nil {
 		return models.Wisata{},
 			fmt.Errorf("membuat wisata: %w", err)
 	}
 
-	for _, file := range files {
+	for _, file := range data.Foto {
 		fileBytes, objectPath, contentType, err := utils.ProcessImageUpload(file)
 		if err != nil {
 			return models.Wisata{},
