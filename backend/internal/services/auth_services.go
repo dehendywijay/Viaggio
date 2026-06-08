@@ -1,9 +1,9 @@
 package services
 
 import (
-	"context"
+	// "context"
 	"strconv"
-	"time"
+	// "time"
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
@@ -12,19 +12,17 @@ import (
 
 	"errors"
 
-	"github.com/redis/go-redis/v9"
+	// "github.com/redis/go-redis/v9"
 )
 
 type AuthService struct {
 	r     *repository.AuthRepository
-	Redis *redis.Client
 
 }
 
-func NewAuthService(r *repository.AuthRepository, redis *redis.Client) *AuthService {
+func NewAuthService(r *repository.AuthRepository) *AuthService {
 	return &AuthService{
 		r:     r,
-		Redis: redis,
 	}
 }
 
@@ -72,19 +70,19 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 		return dto.LoginRespone{}, err
 	}
 
-	userIDStr := strconv.Itoa(int(result.ID))
+	// userIDStr := strconv.Itoa(int(result.ID))
 
 	// s.Redis.Del(
 	// 	context.Background(),
 	// 	userIDStr,
 	// ).Err()
 
-	s.Redis.Set(
-		context.Background(),
-		userIDStr,
-		refreshTokenValue,
-		7*24*time.Hour,
-	).Err()
+	// s.Redis.Set(
+	// 	context.Background(),
+	// 	userIDStr,
+	// 	refreshTokenValue,
+	// 	7*24*time.Hour,
+	// ).Err()
 
 	data := dto.LoginRespone{
 		ID:           result.ID,
@@ -98,10 +96,10 @@ func (s *AuthService) LoginUser(user dto.LoginRequest) (dto.LoginRespone, error)
 
 // SERVICE BELUM SELESAI, MASIH PERLU DI COCOKAN DENGAN REFRESH YANG DI SIMPAN LOCAL STORAGE
 func (s *AuthService) RefreshToken(id string) (string, error) {
-	s.Redis.Get(
-		context.Background(),
-		id,
-	).Result()
+	// s.Redis.Get(
+	// 	context.Background(),
+	// 	id,
+	// ).Result()
 
 	ID, err := strconv.Atoi(id)
 	if err != nil {
@@ -117,10 +115,10 @@ func (s *AuthService) RefreshToken(id string) (string, error) {
 }
 
 func (s *AuthService) LogoutUser(id string) error {
-	s.Redis.Del(
-		context.Background(),
-		id,
-	).Err()
+	// s.Redis.Del(
+	// 	context.Background(),
+	// 	id,
+	// ).Err()
 
 	return nil
 }

@@ -1,10 +1,10 @@
 package dto
 
 type CreateReviewRequest struct {
-	UserID   uint   `json:"user_id" binding:"required"`
-	WisataID uint   `json:"wisata_id" binding:"required"`
-	Rating  int    `json:"rating" binding:"required,min=1,max=5"`
-	Comment string `json:"comment" binding:"required"`
+	UserID   uint   `json:"user_id" validate:"required"`
+	WisataID uint   `json:"wisata_id" validate:"required"`
+	Rating   int    `json:"rating" validate:"required,min=1,max=5"`
+	Comment  string `json:"comment" validate:"required"`
 }
 
 type ReviewResponse struct {
@@ -33,9 +33,9 @@ type ReviewItemResponse struct {
 }
 
 type ReviewsItemByUserResponse struct {
-	ID      uint                `json:"id"`
-	Rating  int                 `json:"rating"`
-	Comment string              `json:"comment"`
+	ID      uint                 `json:"id"`
+	Rating  int                  `json:"rating"`
+	Comment string               `json:"comment"`
 	Wisata  WisataReviewResponse `json:"wisata"`
 }
 
@@ -45,6 +45,6 @@ type ReviewsByWisataResponse struct {
 }
 
 type ReviewsByUserResponse struct {
-	User    UserReviewResponse   `json:"user"`
+	User    UserReviewResponse          `json:"user"`
 	Reviews []ReviewsItemByUserResponse `json:"reviews"`
 }

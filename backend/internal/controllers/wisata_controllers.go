@@ -7,17 +7,20 @@ import (
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/services"
+	"triptix/internal/validator"
 
 	"github.com/gin-gonic/gin"
 )
 
 type WisataControllers struct {
 	s *services.WisataService
+	Validator validator.CustomValidator
 }
 
-func NewWisataControllers(s *services.WisataService) *WisataControllers {
+func NewWisataControllers(s *services.WisataService, validator validator.CustomValidator) *WisataControllers {
 	return &WisataControllers{
 		s: s,
+		Validator: validator,
 	}
 }
 
@@ -31,37 +34,17 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 		return 
 	}
 
-	form, err := c.MultipartForm()
+	err := h.Validator.Validate(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "S"})
+		c.JSON(400, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
 		return
 	}
 
-	files := form.File["fotos"]
-	durasii, err := strconv.Atoi(strconv.Itoa(req.Durasi))
-	if err != nil {
-		return
-	}
-	hargaa, err := strconv.Atoi(strconv.Itoa(req.Harga))
-	if err != nil {
-		return
-	}
 
-	if req.Nama == "" || req.Alamat == "" || req.Deskripsi == "" || req.Durasi == 0 || req.Jenis == "" || req.Harga == 0 || req.Kategori == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Semua field harus diisi"})
-		return
-	}
-	wisata := models.Wisata{
-		Nama:      req.Nama,
-		Alamat:    req.Alamat,
-		Deskripsi: req.Deskripsi,
-		Durasi:    durasii,
-		Jenis:     req.Jenis,
-		Harga:     hargaa,
-		Kategori:  req.Kategori,
-	}
-
-	result, err := h.s.CreateWisata(wisata, files)
+	result, err := h.s.CreateWisata(&req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
