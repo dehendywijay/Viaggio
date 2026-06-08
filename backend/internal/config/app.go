@@ -30,7 +30,7 @@ func BootstrapApp(db *gorm.DB) *App {
 
 	wisataRepo := repository.NewWisataRepository(db)
 	wisataService := services.NewWisataService(wisataRepo)
-	wisataController := controllers.NewWisataControllers(wisataService)
+	wisataController := controllers.NewWisataControllers(wisataService, validator)
 
 	orderRepo := repository.NewOrderRepository(db)
 	orderService := services.NewOrderService(orderRepo)
