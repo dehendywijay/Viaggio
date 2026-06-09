@@ -6,6 +6,7 @@ import (
 	"triptix/internal/services"
 	"triptix/internal/validator"
 
+	"github.com/midtrans/midtrans-go/snap"
 	"gorm.io/gorm"
 )
 
@@ -14,15 +15,15 @@ type App struct {
 	ReviewController *controllers.ReviewControllers
 	WisataController *controllers.WisataControllers
 	OrderController *controllers.OrderControllers
+	PaymentController *controllers.PaymentControllers
 }
 
-func BootstrapApp(db *gorm.DB) *App {
+func BootstrapApp(db *gorm.DB, snap *snap.Client) *App {
 	validator := validator.NewCustomValidator()
 
 	authRepo := repository.NewAuthRepository(db)
 	authService := services.NewAuthService(authRepo)
 	authController := controllers.NewAuthControllers(authService, validator)
-
 
 	reviewRepo := repository.NewReviewRepository(db)
 	reviewService := services.NewReviewService(reviewRepo)
@@ -36,10 +37,15 @@ func BootstrapApp(db *gorm.DB) *App {
 	orderService := services.NewOrderService(orderRepo)
 	orderController := controllers.NewOrderControllers(orderService)
 
+	paymentRepo := repository.NewPaymentRepository(db)
+	paymentService := services.NewPaymentService(paymentRepo, snap)
+	paymentController := controllers.NewPaymentControllers(paymentService)
+
 	return &App{
 		AuthController:   authController,
 		ReviewController: reviewController,
 		WisataController: wisataController,
 		OrderController:  orderController,
+		PaymentController: paymentController,
 	}
 }

@@ -2,13 +2,12 @@ package repository
 
 import (
 	"fmt"
-	
+
 	"triptix/internal/dto"
 	"triptix/internal/models"
 
 	"gorm.io/gorm"
 )
-
 
 type WisataRepository struct {
 	GormDB *gorm.DB
@@ -20,9 +19,13 @@ func NewWisataRepository(db *gorm.DB) *WisataRepository {
 	}
 }
 
-func (r *WisataRepository) CreateWisata(data models.Wisata) (models.Wisata, error) {
-	err := r.GormDB.Create(&data).Error
-	return data, err
+func (r *WisataRepository) CreateWisata(data models.Wisata) (uint, error) {
+	var ID uint
+	err := r.GormDB.Create(&data).Scan(&ID).Error
+	if err != nil {
+		return 0, fmt.Errorf("Gagal menambahkan Data %s", err)
+	}
+	return ID, nil
 }
 
 func (r *WisataRepository) GetAllWisata() ([]dto.AllWisataResponse, error) {
@@ -46,67 +49,61 @@ func (r *WisataRepository) GetAllWisata() ([]dto.AllWisataResponse, error) {
 		`).
 		Scan(&response).Error
 
-	return response, err
+	if err != nil {
+		return nil, fmt.Errorf("Gagal Mengambil data %s", err)
+	}
+	return response, nil
 }
-
 
 func (r *WisataRepository) GetWisataByID(id string) (models.Wisata, error) {
 	var wisata models.Wisata
 	err := r.GormDB.Preload("Fotos").First(&wisata, id).Error
+	if err != nil {
+		return models.Wisata{}, fmt.Errorf("get wisata: %w", fmt.Errorf("Gagal Mengambil Wisata"))
+	}
 	return wisata, err
 }
 
-func (r *WisataRepository) CreateWisataFoto(
-	data models.Foto,
-) error {
-
-	return r.GormDB.Create(&data).Error
+func (r *WisataRepository) CreateWisataFoto(data models.Foto) error {
+	err := r.GormDB.Create(&data).Error
+	if err != nil {
+		return fmt.Errorf("create foto Gagal: %w", err)
+	}
+	return nil
 }
 
-func (r *WisataRepository) UpdateWisataFoto(
-	data models.Foto,
-	id string,
-) error {
-
-	return r.GormDB.
-		Model(&models.Foto{}).
-		Where("id = ?", id).
-		Updates(data).Error
+func (r *WisataRepository) UpdateWisataFoto(data models.Foto, id int) error {
+	err := r.GormDB.Model(&models.Foto{}).Where("id = ?", id).Updates(data).Error
+	if err != nil {
+		return fmt.Errorf("update foto Gagal: %w", err)
+	}
+	return nil
 }
 
-func (r *WisataRepository) EditWisata(
-	id uint,
-	data models.Wisata,
-) (models.Wisata, error) {
-
+func (r *WisataRepository) EditWisata(id uint, data models.Wisata) error {
 	var wisata models.Wisata
 
-	err := r.GormDB.
-		Where("id = ?", id).
-		First(&wisata).Error
+	err := r.GormDB.Where("id = ?", id).First(&wisata).Error
 
 	if err != nil {
-		return models.Wisata{},
-			fmt.Errorf("find wisata: %w", err)
+		return fmt.Errorf("find wisata: %w", err)
 	}
 
-	err = r.GormDB.
-		Model(&wisata).
-		Updates(data).Error
+	err = r.GormDB.Model(&wisata).Updates(data).Error
 
 	if err != nil {
-		return models.Wisata{},
-			fmt.Errorf("update wisata: %w", err)
+		return fmt.Errorf("update wisata: %w", err)
 	}
 
-	return wisata, nil
+	return nil
 }
 
-func (r *WisataRepository) GetFotoWisata(id uint, idfoto string) (models.Foto, error){
+func (r *WisataRepository) GetFotoWisata(id uint, idfoto int) (models.Foto, error) {
 	var fotos models.Foto
 
 	err := r.GormDB.Where("wisata_id = ?", id).Find(&fotos, idfoto).Error
-	return fotos, err
+	if err != nil {
+		return models.Foto{}, fmt.Errorf("get foto error: %w", err)
+	}
+	return fotos, nil
 }
-
-

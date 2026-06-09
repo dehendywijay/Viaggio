@@ -36,4 +36,9 @@ func SetupRoutes(r *gin.Engine, app *config.App) {
 		order.POST("", app.OrderController.CreateOrder)
 		order.GET("/user/:id", app.OrderController.GetOrders)
 	}
+
+	payment := r.Group("/api/payment")
+	{
+		payment.POST("/:id", app.PaymentController.Payment)
+	}
 }
