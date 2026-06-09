@@ -18,12 +18,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	
+	snap, err := config.InitMidtrans()
+	if err != nil {
+		panic(err)
+	}
+
+	config.InitMidtrans()
 	// redisClient, err := config.ConnectRedis()
 	// if err != nil {
 	// 	panic(err)
 	// }
 	db.AutoMigrate(&models.Wisata{}, &models.User{}, &models.Foto{}, &models.Review{}, &models.Order{}, &models.OrderItem{})
-	app := config.BootstrapApp(db)
+	app := config.BootstrapApp(db,snap)
 	routes.SetupRoutes(r, app)
 	
 
