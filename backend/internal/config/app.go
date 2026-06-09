@@ -15,6 +15,7 @@ type App struct {
 	ReviewController *controllers.ReviewControllers
 	WisataController *controllers.WisataControllers
 	OrderController *controllers.OrderControllers
+	PaymentController *controllers.PaymentControllers
 }
 
 func BootstrapApp(db *gorm.DB, snap *snap.Client) *App {
@@ -36,10 +37,15 @@ func BootstrapApp(db *gorm.DB, snap *snap.Client) *App {
 	orderService := services.NewOrderService(orderRepo)
 	orderController := controllers.NewOrderControllers(orderService)
 
+	paymentRepo := repository.NewPaymentRepository(db)
+	paymentService := services.NewPaymentService(paymentRepo, snap)
+	paymentController := controllers.NewPaymentControllers(paymentService)
+
 	return &App{
 		AuthController:   authController,
 		ReviewController: reviewController,
 		WisataController: wisataController,
 		OrderController:  orderController,
+		PaymentController: paymentController,
 	}
 }
