@@ -16,6 +16,7 @@ type PaymentService struct {
 func NewPaymentService(r *repository.PaymentRepository, snap *snap.Client) *PaymentService {
 	return &PaymentService{
 		r: r,
+		Snap: snap,
 	}
 }
 
@@ -36,7 +37,21 @@ func (p *PaymentService) Payment(ID uint) (*snap.Response, error) {
 		},
 	}
 	token, err := p.Snap.CreateTransaction(req)
-
 	return token, nil
-
 }
+
+func (s *PaymentService) Notification(notificationPayload map[string]interface{}) error {
+	orderID := notificationPayload["order_id"].(uint)
+	transactionStatus := notificationPayload["transaction_status"].(string)
+
+	if transactionStatus == "settlement" ||
+		transactionStatus == "capture" {
+		err:=s.r.AcceptPayment(orderID)
+		if err != nil {
+			return err
+		}
+	}
+	
+	return nil
+}
+
