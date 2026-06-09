@@ -21,7 +21,7 @@ func NewWisataService(r *repository.WisataRepository) *WisataService {
 	}
 }
 
-func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) (models.Wisata, error) {
+func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) error {
 
 	wisata := models.Wisata{
 		Nama:      data.Nama,
@@ -35,34 +35,30 @@ func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) (models.Wisa
 
 	result, err := s.r.CreateWisata(wisata)
 	if err != nil {
-		return models.Wisata{},
-			fmt.Errorf("membuat wisata: %w", err)
+		return fmt.Errorf("membuat wisata: %w", err)
 	}
 
 	for _, file := range data.Foto {
 		fileBytes, objectPath, contentType, err := utils.ProcessImageUpload(file)
 		if err != nil {
-			return models.Wisata{},
-				fmt.Errorf("process image: %w", err)
+			return fmt.Errorf("process image: %w", err)
 		}
 
 		publicURL, err := storage.UploadToSupabase("wisata_image", objectPath, contentType, fileBytes)
 		if err != nil {
-			return models.Wisata{},
-				fmt.Errorf("upload supabase: %w", err)
+			return fmt.Errorf("upload supabase: %w", err)
 		}
 		foto := models.Foto{
-			WisataID: result.ID,
+			WisataID: result,
 			URL:      publicURL,
 		}
 		if err := s.r.CreateWisataFoto(foto); err != nil {
-			return models.Wisata{},
-				fmt.Errorf("create wisata foto: %w", err)
+			return fmt.Errorf("create wisata foto: %w", err)
 		}
 
 	}
 
-	return result, nil
+	return nil
 
 }
 

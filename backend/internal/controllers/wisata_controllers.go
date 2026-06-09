@@ -41,7 +41,7 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 		return
 	}
 
-	result, err := h.s.CreateWisata(&req)
+	err = h.s.CreateWisata(&req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -49,7 +49,7 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Data wisata berhasil dibuat",
-		"data":    result,
+		"success": true,
 	})
 
 }
