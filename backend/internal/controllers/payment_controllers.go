@@ -41,3 +41,22 @@ func (h *PaymentControllers) Payment(c *gin.Context) {
 		"data":    result,
 	})
 }
+
+func (h *PaymentControllers) Notification(c *gin.Context) {
+	var notificationPayload map[string]interface{}
+
+	if err := c.ShouldBindJSON(&notificationPayload); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.s.Notification(notificationPayload)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "ok",
+	})
+}
