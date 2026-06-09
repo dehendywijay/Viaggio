@@ -40,5 +40,6 @@ func SetupRoutes(r *gin.Engine, app *config.App) {
 	payment := r.Group("/api/payment")
 	{
 		payment.POST("/:id", app.PaymentController.Payment)
+		payment.POST("/notification", app.PaymentController.Notification)
 	}
 }
