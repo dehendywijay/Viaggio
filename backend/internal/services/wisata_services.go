@@ -2,17 +2,15 @@ package services
 
 import (
 	"fmt"
-
-	"mime/multipart"
+	
 	"triptix/internal/dto"
 	"triptix/internal/models"
 	"triptix/internal/repository"
 	"triptix/pkg/storage"
 	"triptix/pkg/utils"
 
-	"github.com/gin-gonic/gin"
 )
- 
+
 type WisataService struct {
 	r *repository.WisataRepository
 }
@@ -23,17 +21,16 @@ func NewWisataService(r *repository.WisataRepository) *WisataService {
 	}
 }
 
-	
 func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) (models.Wisata, error) {
 
 	wisata := models.Wisata{
-		Nama:     data.Nama,
-		Alamat:   data.Alamat,
-		Harga:    data.Harga,
-		Kategori: data.Kategori,
-		Jenis:    data.Jenis,
+		Nama:      data.Nama,
+		Alamat:    data.Alamat,
+		Harga:     data.Harga,
+		Kategori:  data.Kategori,
+		Jenis:     data.Jenis,
 		Deskripsi: data.Deskripsi,
-		Durasi:   data.Durasi,
+		Durasi:    data.Durasi,
 	}
 
 	result, err := s.r.CreateWisata(wisata)
@@ -69,58 +66,34 @@ func (s *WisataService) CreateWisata(data *dto.CreateWisataRequest) (models.Wisa
 
 }
 
-func (s *WisataService) EditWisata(
-	wisataID uint,
-	idFoto string,
-	wisata models.Wisata,
-	files []*multipart.FileHeader,
-	fileEdit *multipart.FileHeader,
-	c *gin.Context,
-) error {
+func (s *WisataService) EditWisata(data *dto.UpdateWisataRequest, wisataID uint) error {
 
-	_, err := s.r.EditWisata(
-		wisataID,
-		wisata,
-	)
+	wisata := models.Wisata{
+		Nama:      data.Nama,
+		Alamat:    data.Alamat,
+		Harga:     data.Harga,
+		Kategori:  data.Kategori,
+		Jenis:     data.Jenis,
+		Deskripsi: data.Deskripsi,
+		Durasi:    data.Durasi,
+	}
+	err := s.r.EditWisata(wisataID,wisata,)
 
 	if err != nil {
-		return fmt.Errorf(
-			"update wisata: %w",
-			err,
-		)
+		return fmt.Errorf("update wisata: %w",err,)
 	}
-	if fileEdit != nil {
-
-		oldObjectPath, err := s.r.GetFotoWisata(
-			wisataID,
-			idFoto,
-		)
-
+	
+	if data.FotoEdit != nil {
+		oldObjectPath, err := s.r.GetFotoWisata(wisataID,data.IDFotoChange,)
 		if err != nil {
-			return fmt.Errorf(
-				"get foto wisata: %w",
-				err,
-			)
+			return fmt.Errorf("get foto wisata: %w",err)
 		}
 
-		oldFoto := utils.ExtractObjectPath(
-			oldObjectPath.URL,
-			"wisata_image",
-		)
-
-		fileBytes,
-			objectPath,
-			contentType,
-			err := utils.ProcessImageUploadUpdate(
-			c,
-			"fotoEdit",
-		)
+		oldFoto := utils.ExtractObjectPath(oldObjectPath.URL,"wisata_image",)
+		fileBytes,objectPath,contentType,err := utils.ProcessImageUpload(data.FotoEdit)
 
 		if err != nil {
-			return fmt.Errorf(
-				"process image update: %w",
-				err,
-			)
+			return fmt.Errorf("process image update: %w",err,)
 		}
 
 		publicURL, err := storage.UpdateSupabaseFile(
@@ -144,7 +117,7 @@ func (s *WisataService) EditWisata(
 
 		err = s.r.UpdateWisataFoto(
 			foto,
-			idFoto,
+			data.IDFotoChange,
 		)
 
 		if err != nil {
@@ -155,7 +128,7 @@ func (s *WisataService) EditWisata(
 		}
 	}
 
-	for _, file := range files {
+	for _, file := range data.Foto {
 
 		fileBytes,
 			objectPath,
