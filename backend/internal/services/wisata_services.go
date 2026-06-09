@@ -170,9 +170,17 @@ func (s *WisataService) EditWisata(data *dto.UpdateWisataRequest, wisataID uint)
 }
 
 func (s *WisataService) GetAllWisata() ([]dto.AllWisataResponse, error) {
-	return s.r.GetAllWisata()
+	result, err := s.r.GetAllWisata()
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (s *WisataService) GetWisataByID(id string) (models.Wisata, error) {
-	return s.r.GetWisataByID(id)
+	result, err := s.r.GetWisataByID(id)
+	if err != nil {
+		return models.Wisata{}, err
+	}
+	return result, nil
 }
