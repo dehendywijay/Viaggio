@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"mime/multipart"
 	"net/http"
 	"strconv"
 	"triptix/internal/dto"
-	"triptix/internal/models"
 	"triptix/internal/services"
 	"triptix/internal/validator"
 
@@ -13,13 +11,13 @@ import (
 )
 
 type WisataControllers struct {
-	s *services.WisataService
+	s         *services.WisataService
 	Validator validator.CustomValidator
 }
 
 func NewWisataControllers(s *services.WisataService, validator validator.CustomValidator) *WisataControllers {
 	return &WisataControllers{
-		s: s,
+		s:         s,
 		Validator: validator,
 	}
 }
@@ -31,7 +29,7 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "request tidak valid",
 		})
-		return 
+		return
 	}
 
 	err := h.Validator.Validate(&req)
@@ -42,7 +40,6 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 		})
 		return
 	}
-
 
 	result, err := h.s.CreateWisata(&req)
 	if err != nil {
@@ -58,61 +55,25 @@ func (h *WisataControllers) CreateWisata(c *gin.Context) {
 }
 
 func (h *WisataControllers) EditWisata(c *gin.Context) {
-
 	id := c.Param("id")
 
-	idd, err := strconv.Atoi(id)
-	if err != nil {
+	var wisata dto.UpdateWisataRequest
+
+	if err := c.ShouldBind(&wisata); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "id tidak valid",
+			"error": "request tidak valid",
 		})
 		return
 	}
 
-	durasi, err := strconv.Atoi(c.PostForm("durasi"))
+	idd, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "durasi harus angka",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
+	myUint := uint(idd)
 
-	harga, err := strconv.Atoi(c.PostForm("harga"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "harga harus angka",
-		})
-		return
-	}
-
-	wisata := models.Wisata{
-		Nama:      c.PostForm("nama"),
-		Alamat:    c.PostForm("alamat"),
-		Deskripsi: c.PostForm("deskripsi"),
-		Durasi:    durasi,
-		Jenis:     c.PostForm("jenis"),
-		Harga:     harga,
-		Kategori:  c.PostForm("kategori"),
-	}
-
-	form, _ := c.MultipartForm()
-
-	var files []*multipart.FileHeader
-
-	if form != nil {
-		files = form.File["fotos"]
-	}
-
-	fileEdit, _ := c.FormFile("fotoEdit")
-
-	err = h.s.EditWisata(
-		uint(idd),
-		c.PostForm("id_foto"),
-		wisata,
-		files,
-		fileEdit,
-		c,
-	)
+	err = h.s.EditWisata(&wisata, myUint)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
