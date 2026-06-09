@@ -21,3 +21,18 @@ type CreateWisataRequest struct {
 	Kategori  string                  `form:"kategori" validate:"required"`
 	Foto      []*multipart.FileHeader `form:"fotos" validate:"required"`
 }
+
+type UpdateWisataRequest struct {
+	Nama      string                  `form:"nama" validate:"required"`
+	Alamat    string                  `form:"alamat" validate:"required"`
+	Deskripsi string                  `form:"deskripsi" validate:"required"`
+	Durasi    int                     `form:"durasi" validate:"required"`
+	Jenis     string                  `form:"jenis" validate:"required"`
+	Harga     int                     `form:"harga" validate:"required"`
+	Kategori  string                  `form:"kategori" validate:"required"`
+	Foto      []*multipart.FileHeader `form:"fotos" validate:"required"`
+
+	IDFotoChange int `form:"id_foto_change" validate:"required"`
+
+	FotoEdit *multipart.FileHeader `form:"foto_edit" validate:"required"`
+}
