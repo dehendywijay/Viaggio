@@ -26,3 +26,12 @@ func (r *PaymentRepository) CekPayment(ID uint) (models.Order, error) {
 	return payment, nil
 }
 
+func (r *PaymentRepository) AcceptPayment(ID uint)  error {
+	var payment models.Order
+	err :=r.DB.Model(&payment).Where("id = ?", ID).Update("status", "paid").Error
+	if err != nil {
+		return fmt.Errorf("update payment: %w", err)
+	}
+	return nil
+}
+
